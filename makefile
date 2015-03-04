@@ -121,16 +121,19 @@ CC = clang
 PKG_CFLAGS = `pkg-config --cflags gl glu gtk+-3.0 sdl glib-2.0`
 PKG_LIBS = `pkg-config --libs gl glu gtk+-3.0 sdl glib-2.0` -lstdc++
 
-CXXFLAGS = \
--O3 \
--stdlib=libstdc++ \
--Isrc \
--Isrc/include \
--Isrc/tinyxml_2_5_3/tinyxml $(PKG_CFLAGS)
+#DEBUG = -O3
+DEBUG = -O0 -ggdb3 -fno-inline
+
+CXXFLAGS = $(DEBUG) \
+		   -stdlib=libstdc++ \
+		   -Isrc \
+		   -Isrc/include \
+		   -Isrc/tinyxml_2_5_3/tinyxml $(PKG_CFLAGS)
 
 atanua: $(atanua-obj)
 	$(CXX) $(PKG_CFLAGS) -o $@ $(atanua-obj) -L. $(PKG_LIBS) $(CXXFLAGS)
 
 clean:
-	rm -f $(atanua-obj) atanua
+	rm -f atanua
+	find src -name '*.o' -delete
 

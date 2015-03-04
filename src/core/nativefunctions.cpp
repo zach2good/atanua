@@ -496,7 +496,7 @@ void gotoappdirectory(int parc, char ** pars)
 int opendll(const char *dllfilename)
 {
     void* library = dlopen(dllfilename, RTLD_LAZY);
-    return (int)library;
+    return (uint64_t)library;
 }
 
 void *getdllproc(int dllhandle, const char *procname)

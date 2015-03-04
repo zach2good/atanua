@@ -1,4 +1,4 @@
-all: atanua
+all: atanua data
 
 atanua-cpp-src = \
 	src/core/AtanuaConfig.cpp \
@@ -136,6 +136,11 @@ endif
 
 atanua: $(atanua-obj)
 	$(CXX) $(PKG_CFLAGS) -o $@ $(atanua-obj) -L. $(PKG_LIBS) $(CXXFLAGS)
+
+data:
+	wget -qc http://sol.gfxile.net/zip/atanua141220.zip
+	unzip atanua141220.zip 'data/*'
+	rm atanua141220.zip
 
 clean:
 	rm -f atanua

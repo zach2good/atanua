@@ -130,6 +130,10 @@ CXXFLAGS = $(DEBUG) \
 		   -Isrc/include \
 		   -Isrc/tinyxml_2_5_3/tinyxml $(PKG_CFLAGS)
 
+ifeq ($(shell uname), Linux)
+	PKG_LIBS += -lm -ldl
+endif
+
 atanua: $(atanua-obj)
 	$(CXX) $(PKG_CFLAGS) -o $@ $(atanua-obj) -L. $(PKG_LIBS) $(CXXFLAGS)
 

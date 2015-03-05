@@ -122,7 +122,7 @@ PKG_CFLAGS = `pkg-config --cflags gl glu gtk+-3.0 sdl glib-2.0`
 PKG_LIBS = `pkg-config --libs gl glu gtk+-3.0 sdl glib-2.0` -lstdc++
 
 #DEBUG = -O3
-DEBUG = -O0 -ggdb3 -fno-inline
+DEBUG = -O0 -ggdb3 -fno-inline -Wall -Werror
 
 CXXFLAGS = $(DEBUG) \
 		   -stdlib=libstdc++ \

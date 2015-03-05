@@ -30,7 +30,7 @@ int showWarning(const char *str) {
 	AlertController *controller = [[AlertController alloc] init];
 	NSAlert *alert = [[NSAlert alloc] init];
 	[alert setAlertStyle: NSWarningAlertStyle];
-	[alert setMessageText: [NSString stringWithCString: str]];
+    [alert setMessageText: [NSString stringWithCString:str encoding:NSUTF8StringEncoding]];
 	[alert addButtonWithTitle: @"Cancel"];
 	[alert addButtonWithTitle: @"OK"];
 	[alert beginSheetModalForWindow: sdlWindow modalDelegate: controller didEndSelector: @selector(alertDidEnd:returnCode:contextInfo:) contextInfo: NULL];
@@ -75,7 +75,7 @@ int showWarning(const char *str) {
 
 int doSaveDialog(char * buf, const char *title) {
 	NSSavePanel* panel = [NSSavePanel savePanel];
-	[panel setTitle: [NSString stringWithCString: title]];
+    [panel setTitle: [NSString stringWithCString:title encoding:NSUTF8StringEncoding]];
 	[panel setRequiredFileType: @"atanua"];
 	[panel setExtensionHidden: false];
 	[panel setPrompt: @"Save"];
@@ -94,7 +94,7 @@ int doSaveDialog(char * buf, const char *title) {
 int doSaveSheet(char * buf, const char *title) {
 	NSWindow *sdlWindow = getMainWindow();
 	NSSavePanel* panel = [NSSavePanel savePanel];
-	[panel setTitle: [NSString stringWithCString: title]];
+    [panel setTitle: [NSString stringWithCString:title encoding:NSUTF8StringEncoding]];
 	[panel setPrompt: @"Save"];
 	[panel setNameFieldLabel: @"NameFieldLabel"];
 	SaveController* controller = [[[SaveController alloc] init] autorelease];
@@ -139,7 +139,7 @@ int doOpenSheet(char * buf) {
 
 int doOpenDialog(char *buf, const char *title) {
 	NSOpenPanel* panel = [NSOpenPanel openPanel];
-	[panel setTitle: [NSString stringWithCString: title]];
+    [panel setTitle: [NSString stringWithCString:title encoding:NSUTF8StringEncoding]];
 	[panel setPrompt: @"Open"];
 	[panel setCanChooseDirectories: FALSE];
 

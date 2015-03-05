@@ -61,16 +61,6 @@ AtanuaConfig::~AtanuaConfig()
 {
 }
 
-static int h2i(char d)
-{
-    if (d >= '0' && d <= '9')
-        return d - '0';
-    if (d >= 'A' && d <= 'F')
-        return d - 'A' + 10;
-    return -1;
-}
-
-
 void AtanuaConfig::load()
 {
     TiXmlDocument doc;

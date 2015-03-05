@@ -62,7 +62,7 @@ ACFontInfoBlock::ACFontInfoBlock()
 
 void ACFontCommonBlock::load(File * f)
 {
-    int blockSize = f->readint() - 4;
+    //int blockSize = f->readint() - 4;
     lineHeight = f->readword();
     base = f->readword();
     scaleW = f->readword();
@@ -591,7 +591,7 @@ void ACFont::stringmetrics(const char * string, float &w, float &h, float &lastl
         return;
     }
     float maxx = 0;
-    int len = strlen(string);
+    //int len = strlen(string);
     float xofs, yofs;
     xofs = 0;
     yofs = 0;

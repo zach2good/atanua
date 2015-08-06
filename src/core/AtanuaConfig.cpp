@@ -176,7 +176,7 @@ void AtanuaConfig::load()
     }
     else
     {
-        if (!doc.LoadFile(f))
+        if (doc.LoadFile(f))
         {
             fclose(f);
             return;
@@ -195,7 +195,6 @@ void AtanuaConfig::load()
                     {
                         if (part->ToElement())
                         {
-
                             if (stricmp(part->Value(), "FontSystem") == 0)
                             {
                                 ((XMLElement*)part)->QueryIntAttribute("CacheKeys", &mFontCacheMax);

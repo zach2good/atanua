@@ -96,10 +96,6 @@ atanua-cpp-src = \
 	src/basecode/toolkit.cpp \
 	src/core/wire.cpp \
 	src/chip/xorchip.cpp \
-	src/tinyxml_2_5_3/tinyxml/tinystr.cpp \
-	src/tinyxml_2_5_3/tinyxml/tinyxml.cpp \
-	src/tinyxml_2_5_3/tinyxml/tinyxmlerror.cpp \
-	src/tinyxml_2_5_3/tinyxml/tinyxmlparser.cpp \
 	src/tinyxml2/tinyxml2.cpp
 
 ifeq ($(shell uname), Darwin)
@@ -129,7 +125,6 @@ CXXFLAGS = $(DEBUG) \
 		   -stdlib=libstdc++ \
 		   -Isrc \
 		   -Isrc/include \
-		   -Isrc/tinyxml_2_5_3/tinyxml \
 		   -Isrc/tinyxml2 $(PKG_CFLAGS)
 
 ifeq ($(shell uname), Linux)

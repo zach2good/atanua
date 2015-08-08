@@ -65,7 +65,7 @@ static void render_perfcounters(int tex_font, ACFont * font)
                                                  1000.0f / ((float)(perf_data[perf_idx] - perf_data[(perf_idx+1) % PERF_FRAMES]) / PERF_FRAMES));
     perf_idx++;
     perf_idx %= PERF_FRAMES;
-    if (tex_font) 
+    if (tex_font)
 	{
 		quickfont_drawstring(tex_font, perf_temp, 16, gScreenHeight - 32, 0xffffff, 1, 1);
 	}
@@ -114,7 +114,7 @@ void set2d()
     glLoadIdentity();
 }
 
-
+#if 0 // temp noused
 void initvideo(int argc)
 {
     const SDL_VideoInfo *info = NULL;
@@ -123,7 +123,7 @@ void initvideo(int argc)
 
     info = SDL_GetVideoInfo();
 
-    if (!info) 
+    if (!info)
     {
         fprintf(stderr, "Video query failed: %s\n", SDL_GetError());
         SDL_Quit();
@@ -142,7 +142,7 @@ void initvideo(int argc)
 
     if (argc > 1) fsflag = !fsflag;
 
-    if (fsflag) 
+    if (fsflag)
     {
         gScreenWidth = info->current_w;
         gScreenHeight = info->current_h;
@@ -173,13 +173,13 @@ void initvideo(int argc)
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    if (SDL_SetVideoMode(gScreenWidth, gScreenHeight, bpp, flags) == 0) 
+    if (SDL_SetVideoMode(gScreenWidth, gScreenHeight, bpp, flags) == 0)
     {
         fprintf( stderr, "Video mode set failed: %s\n", SDL_GetError());
         SDL_Quit();
         exit(0);
     }
-   
+
 #ifdef DESIRED_ASPECT
     float aspect = DESIRED_ASPECT;
     if (((float)gScreenWidth / gScreenHeight) > aspect)
@@ -202,9 +202,9 @@ void initvideo(int argc)
 
 	set2d();
 
-    reload_textures();    
+    reload_textures();
 }
-
+#endif
 
 static void do_loadtexture(const char * aFilename, int clamp = 1)
 {
@@ -213,7 +213,7 @@ static void do_loadtexture(const char * aFilename, int clamp = 1)
     // Load texture using stb
 	int x, y, n;
 	unsigned char *data = stbi_load(aFilename, &x, &y, &n, 4);
-    
+
     if (data == NULL)
         return;
 
@@ -250,7 +250,7 @@ static void do_loadtexture(const char * aFilename, int clamp = 1)
         unsigned int * gbuf = mip + (w * h * 2);
         unsigned int * bbuf = mip + (w * h * 3);
         unsigned int * abuf = mip + (w * h * 4);
-        
+
         for (j = 0, c = 0; j < h; j++)
         {
             ra = ga = ba = aa = 0;
@@ -312,10 +312,10 @@ static void do_loadtexture(const char * aFilename, int clamp = 1)
                     if (a == 0)
                         mip[c] = 0;
                     else
-                        mip[c] = ((r & 0xff) <<  0) | 
-                                 ((g & 0xff) <<  8) | 
-                                 ((b & 0xff) << 16) | 
-                                 ((a & 0xff) << 24); 
+                        mip[c] = ((r & 0xff) <<  0) |
+                                 ((g & 0xff) <<  8) |
+                                 ((b & 0xff) << 16) |
+                                 ((a & 0xff) << 24);
                 }
             }
             glTexImage2D(GL_TEXTURE_2D, l, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)mip);
@@ -400,14 +400,14 @@ void reload_textures()
 }
 
 // Convert image to SDL cursor, assumes max. 32x32 cursors
-SDL_Cursor *load_cursor(const char *aFilename, int hotx, int hoty) 
+SDL_Cursor *load_cursor(const char *aFilename, int hotx, int hoty)
 {
     int             bytewidth, x, y;
     Uint8           data[32*32*2], *mask, *d, *m;
     SDL_Cursor      *cursor;
 	int ix, iy, n;
 	unsigned char *imgdata = stbi_load(aFilename, &ix, &iy, &n, 4);
-    
+
     if (data == NULL)
         return NULL;
 
@@ -416,16 +416,16 @@ SDL_Cursor *load_cursor(const char *aFilename, int hotx, int hoty)
         stbi_image_free(imgdata);
         return NULL;
     }
-    
+
     bytewidth = (ix + 7) / 8;
     memset(data, 0, bytewidth * iy * 2);
     mask = data + bytewidth * iy;
-  
-    for (y = 0; y < iy; y++) 
+
+    for (y = 0; y < iy; y++)
     {
         d = data + y * bytewidth;
         m = mask + y * bytewidth;
-        for (x = 0; x < ix; x++) 
+        for (x = 0; x < ix; x++)
         {
             unsigned int color = ((unsigned int *)imgdata)[y * ix + x];
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
@@ -448,7 +448,7 @@ SDL_Cursor *load_cursor(const char *aFilename, int hotx, int hoty)
 }
 
 
-int rect_rect_collide(float x0a, float y0a, float x1a, float y1a, 
+int rect_rect_collide(float x0a, float y0a, float x1a, float y1a,
                       float x0b, float y0b, float x1b, float y1b)
 {
     // Make sure rect a is properly shaped
@@ -474,7 +474,7 @@ int rect_rect_collide(float x0a, float y0a, float x1a, float y1a,
 }
 
 // adapted from 'realtime collision detection', p.183
-int rect_line_collide(float x0a, float y0a, float x1a, float y1a, 
+int rect_line_collide(float x0a, float y0a, float x1a, float y1a,
                       float x0b, float y0b, float x1b, float y1b)
 {
     // Make sure rect a is properly shaped
@@ -500,7 +500,7 @@ int rect_line_collide(float x0a, float y0a, float x1a, float y1a,
     float dx = x1b - mx; // segment halflength vec
     float dy = y1b - my;
     mx -= cx; // translate box and segment to origin
-    my -= cy; 
+    my -= cy;
 
     // try world coordinate axes as separating axes
     float adx = fabs(dx);
@@ -615,7 +615,7 @@ void spawn_popup(char * text, float x, float y)
     while (i < MAX_POPUPS && popup[i].live) i++;
     if (i >= MAX_POPUPS) return;
     popup[i].live = 100;
-    popup[i].text = mystrdup(text); 
+    popup[i].text = mystrdup(text);
     popup[i].y = y;
     popup[i].x = x - strlen(text) * 4;
 }
@@ -662,7 +662,7 @@ void spawn_particle(float x, float y, int tex)
     float r = (gVisualRand.genrand_int31() % 1000) / 1000.0f;
     float d = (gVisualRand.genrand_int31() % 1000) / 1000.0f;
     particle[i].dirx = sin(r * 2 * M_PI) * 0.25 * (1 + d);
-    particle[i].diry = -cos(r * 2 * M_PI) * 0.25 * (1 + d);    
+    particle[i].diry = -cos(r * 2 * M_PI) * 0.25 * (1 + d);
     particle[i].tex = tex;
 }
 
@@ -678,11 +678,11 @@ void rotate2d(float &x, float &y, float angle)
 {
     // 2d rotation:
     //x' = x cos f - y sin f
-    //y' = y cos f + x sin f 
+    //y' = y cos f + x sin f
 
     float x1, y1;
     float sa,ca;
-    
+
     x1 = x;
     y1 = y;
     sa = (float)sin(angle);
@@ -776,8 +776,8 @@ int imgui_button(int id, ACFont &font, const char *text, float x, float y, float
 	// If item is hot and active, but mouse button is not
 	// down, the user must have clicked the button.
     // Also give the widget keyboard focus
-	if (gUIState.mousedown == 0 && 
-		gUIState.hotitem == id && 
+	if (gUIState.mousedown == 0 &&
+		gUIState.hotitem == id &&
 		gUIState.activeitem == id)
     {
 		gUIState.kbditem = id;
@@ -797,7 +797,7 @@ int imgui_slider(int id, float x, float y, float w, float h, int bg, int thumb, 
 	// Calculate thumb's relative y offset
 	int ypos = (int)floor(((h - thumbht - 4) * value) / max + 2);
     if (value > max) value = max;
-    
+
 
 	// Check for hotness
 	if (regionhit((int)floor(x), (int)floor(y), (int)floor(w), (int)floor(h)))
@@ -813,7 +813,7 @@ int imgui_slider(int id, float x, float y, float w, float h, int bg, int thumb, 
 
 	// Render the scrollbar
 	drawrect(x, y, w, h, bg);
-	
+
 	if (gUIState.activeitem == id || gUIState.hotitem == id || gUIState.kbditem == id)
 	{
 		drawrect(x+2, y + ypos, w - 4, thumbht, hot);
@@ -845,7 +845,7 @@ int imgui_slider(int id, float x, float y, float w, float h, int bg, int thumb, 
 			if (value > 0)
 			{
 				value -= keyboardcontrolvalue;
-                if (value < 0) 
+                if (value < 0)
                     value = 0;
 				return 1;
 			}
@@ -874,7 +874,7 @@ int imgui_slider(int id, float x, float y, float w, float h, int bg, int thumb, 
         {
             // set value based on current mouse position
             value = (int)floor(((gUIState.mousey - y - 2 - thumbht / 2) * max) / (h - thumbht - 4));
-            
+
             if (value < 0) value = 0;
             if (value > max) value = max;
 
@@ -887,10 +887,10 @@ int imgui_slider(int id, float x, float y, float w, float h, int bg, int thumb, 
     int retvalue = 0; // for the clicking outside thumb code below
 
     // If item is hot and active, but mouse button is not
-	// down, the user must have clicked the widget; give it 
+	// down, the user must have clicked the widget; give it
 	// keyboard focus.
-	if (gUIState.mousedown == 0 && 
-		gUIState.hotitem == id && 
+	if (gUIState.mousedown == 0 &&
+		gUIState.hotitem == id &&
 		gUIState.activeitem == id)
     {
         if (gUIState.mousedowny < y + ypos)
@@ -973,7 +973,7 @@ int imgui_textfield(int id, ACFont &font, int x, int y, int w, int h, char *buff
 				buffer[len] = 0;
 				changed = 1;
 			}
-			break;			
+			break;
 		}
 		if (gUIState.keychar >= 32 && gUIState.keychar < 127 && len < maxlen)
 		{
@@ -985,10 +985,10 @@ int imgui_textfield(int id, ACFont &font, int x, int y, int w, int h, char *buff
 	}
 
 	// If item is hot and active, but mouse button is not
-	// down, the user must have clicked the widget; give it 
+	// down, the user must have clicked the widget; give it
 	// keyboard focus.
-	if (gUIState.mousedown == 0 && 
-		gUIState.hotitem == id && 
+	if (gUIState.mousedown == 0 &&
+		gUIState.hotitem == id &&
 		gUIState.activeitem == id)
 		gUIState.kbditem = id;
 
@@ -1017,7 +1017,7 @@ void imgui_finish()
 	if (gUIState.keyentered == SDLK_TAB)
 		gUIState.kbditem = 0;
 	// Clear the entered key
-	gUIState.keyentered = 0;	
+	gUIState.keyentered = 0;
 	gUIState.keychar = 0;
     gUIState.scroll = 0;
 

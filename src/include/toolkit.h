@@ -25,7 +25,7 @@ distribution.
 
 ////
 //// Configuration
-//// 
+////
 
 // For windowed mode
 #define DESIRED_WINDOW_WIDTH 800
@@ -40,7 +40,7 @@ distribution.
 
 ////
 //// /Configuration
-//// 
+////
 
 #ifdef _MSC_VER
 #define WINDOWS_VERSION
@@ -68,7 +68,7 @@ distribution.
 
 
 #ifdef OSX_VERSION
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include "stb/stb_image.h"
 #include "glee/GLee.h"
 #include <OpenGL/gl.h>
@@ -78,7 +78,7 @@ distribution.
 
 
 #ifdef LINUX_VERSION
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include "stb/stb_image.h"
 #include "glee/GLee.h"
 #include <GL/gl.h>
@@ -95,8 +95,8 @@ distribution.
 #include "fileutils.h"
 
 #ifdef _MSC_VER
-#pragma warning(disable:4244) 
-#pragma warning(disable:4305) 
+#pragma warning(disable:4244)
+#pragma warning(disable:4305)
 #endif
 
 #define USE_BASIC_PARTICLES
@@ -135,7 +135,7 @@ struct UIState
 	int keyentered;
 	int keymod;
 	int keychar;
-	
+
 	int lastwidget;
 };
 
@@ -146,7 +146,7 @@ struct Particle
 {
     int live;
     float x, y;
-    float dirx, diry;  
+    float dirx, diry;
     int tex;
 };
 

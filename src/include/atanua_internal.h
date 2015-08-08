@@ -44,7 +44,7 @@ distribution.
 #ifdef _DEBUG
 #define TITLE "Atanua" "/" ATANUAPLATFORM " " ATANUAVERSION " (debug)"
 #else
-#define TITLE "Atanua" "/" ATANUAPLATFORM " " ATANUAVERSION 
+#define TITLE "Atanua" "/" ATANUAPLATFORM " " ATANUAVERSION
 #endif
 
 #define CHIP_ID(pin, chip) (0x10000000 | ((pin) << 16) | (chip))

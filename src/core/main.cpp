@@ -69,7 +69,7 @@ int gVisibleChiplist = 0;
 Chip * gNewChip = NULL;
 const char * gNewChipName = NULL;
 Pin * gWireStartDrag = NULL;
-int gKeyState[SDLK_LAST];
+std::map<int,int> gKeyState;
 
 float gWorldOfsX = 0, gWorldOfsY = 0;
 float gZoomFactor = 20.0f;
@@ -85,6 +85,9 @@ int gSavePNG = 0;
 
 char * gSidebarTooltip = NULL;
 int gSidebarTooltipId = -1;
+
+SDL_Window *gWindow;
+SDL_GLContext gContext;
 
 SDL_AudioSpec *gAudioSpec = NULL;
 
@@ -107,9 +110,9 @@ void handle_key(int keysym, int down)
         {
             do_cancel();
         }
-        break;        
+        break;
     }
-    if (keysym >= 0 && keysym < SDLK_LAST)
+    if (keysym >= 0)
         gKeyState[keysym] = down;
 }
 
@@ -142,11 +145,11 @@ void do_screengrab()
 	int y0 = 40;
 	int w = gScreenWidth - x0;
 	int h = gScreenHeight - y0;
-	
+
 	char * data = new char[w*h*4];
 	char * flipdata = new char[w*h*4];
 	glReadPixels(x0,0,w,h,GL_RGBA,GL_UNSIGNED_BYTE,data);
-	
+
 	for (i = 0; i < h; i++)
 		memcpy(flipdata+(h-i-1)*w*4,data+i*w*4,w*4);
 
@@ -164,9 +167,9 @@ void process_events()
 {
     SDL_Event event;
 
-    while (SDL_PollEvent(&event)) 
+    while (SDL_PollEvent(&event))
     {
-        switch (event.type) 
+        switch (event.type)
         {
         case SDL_KEYDOWN:
             handle_key(event.key.keysym.sym, 1);
@@ -187,24 +190,28 @@ void process_events()
 
 
             // if key is ASCII, accept it as character input
-            if ((event.key.keysym.unicode & 0xFF80) == 0)
-                gUIState.keychar = event.key.keysym.unicode & 0x7f;                
+            //if ((event.key.keysym.unicode & 0xFF80) == 0)
+            //    gUIState.keychar = event.key.keysym.unicode & 0x7f;
             break;
         case SDL_KEYUP:
             gUIState.keymod = event.key.keysym.mod;
             handle_key(event.key.keysym.sym, 0);
+#ifdef __APPLE__
             if (event.key.keysym.sym == SDLK_z &&
                 event.key.keysym.mod & KMOD_META)
                 do_undo();
+#endif
             if (event.key.keysym.sym == SDLK_z &&
                 event.key.keysym.mod & KMOD_CTRL)
                 do_undo();
             if (event.key.keysym.sym == SDLK_BACKSPACE &&
                 event.key.keysym.mod & KMOD_ALT)
                 do_undo();
+#ifdef __APPLE__
             if (event.key.keysym.sym == SDLK_y &&
                 event.key.keysym.mod & KMOD_META)
                 do_redo();
+#endif
             if (event.key.keysym.sym == SDLK_y &&
                 event.key.keysym.mod & KMOD_CTRL)
                 do_redo();
@@ -298,9 +305,9 @@ void process_events()
             SDL_Quit();
             exit(0);
             break;
-        case SDL_VIDEORESIZE:
-            gScreenWidth = event.resize.w;
-            gScreenHeight = event.resize.h;
+        case SDL_WINDOWEVENT_RESIZED:
+            gScreenWidth = event.window.data1;
+            gScreenHeight = event.window.data2;
             initvideo();
             break;
         }
@@ -355,7 +362,7 @@ int split_wire(int aDoSplit)
     float wirelen = sqrt((pos1[0]-pos2[0])*(pos1[0]-pos2[0]) + (pos1[1]-pos2[1])*(pos1[1]-pos2[1]));
     float p1dist = sqrt((pos1[0]-pos3[0])*(pos1[0]-pos3[0]) + (pos1[1]-pos3[1])*(pos1[1]-pos3[1]));
     float p2dist = sqrt((pos2[0]-pos3[0])*(pos2[0]-pos3[0]) + (pos2[1]-pos3[1])*(pos2[1]-pos3[1]));
-        
+
     if (p1dist < wirelen * gConfig.mLineEndTolerance)
     {
         if (!aDoSplit) return 0;
@@ -380,7 +387,7 @@ int split_wire(int aDoSplit)
         save_undo();
         Chip *newpin = gChipFactory[0]->build("Connection Pin");
         gChip.push_back(newpin);
-        gChipName.push_back("Connection Pin");        
+        gChipName.push_back("Connection Pin");
         newpin->mX = worldmousex-0.5;
         newpin->mY = worldmousey-0.5;
         newpin->rotate(0);
@@ -443,7 +450,7 @@ void do_build_nets();
 static void draw_screen()
 {
     int i;
-    int tick = SDL_GetTicks();     
+    int tick = SDL_GetTicks();
     static int slidervalue = 0;
     float worldmousex = ((gUIState.mousex - gConfig.mToolkitWidth) / gZoomFactor) - gWorldOfsX;
     float worldmousey = ((gUIState.mousey - 40) / gZoomFactor) - gWorldOfsY;
@@ -504,7 +511,7 @@ static void draw_screen()
 //#pragma omp parallel default(shared) num_threads(4)
 
 			// Chip updates could be split into jobs for a thread pool.
-//#pragma omp for 
+//#pragma omp for
 			for (i = 0; i < chips; i++)
 			{
 				if (gChip[i]->mDirty)
@@ -513,9 +520,9 @@ static void draw_screen()
 					gChip[i]->update(physicstick);
 				}
 			}
-		
+
 			// Net updates are relatively simple, and there's relatively few nets..
-//#pragma omp for 
+//#pragma omp for
 			for (i = 0; i < nets; i++)
 			{
 				if (gNet[i]->mDirty)
@@ -529,18 +536,18 @@ static void draw_screen()
 				}
 			}
 			physics_iterations++;
-        
+
 			physicstick += 1.0 / gConfig.mPhysicsKHz;
 		}
-       
+
         lasttick += 1;
 
         // don't allow for physics to drop framerate too low
-        
+
         if ((signed)SDL_GetTicks() - tick > gConfig.mMaxPhysicsMs)
         {
             lasttick = tick;
-        }        
+        }
     }
 
     physms = SDL_GetTicks() - physms;
@@ -574,7 +581,7 @@ static void draw_screen()
     if (gUIState.mousex < gConfig.mToolkitWidth-20 && gUIState.mousey > 40)
     {
         loc = (gUIState.mousey - 40 + slidervalue) / 26;
-    }    
+    }
 
     for (i = 0; i < (signed)gAvailableChip[gVisibleChiplist].size(); i++)
     {
@@ -593,7 +600,7 @@ static void draw_screen()
                     // clear multiselect if any
                     gMultiSelectChip.clear();
                     gMultiSelectWire.clear();
-                    gMultiselectDirty = 1;                    
+                    gMultiselectDirty = 1;
                     int j;
                     for (j = 0; gNewChip == NULL && j < (signed)gChipFactory.size(); j++)
                         gNewChip = gChipFactory[j]->build(gAvailableChip[gVisibleChiplist][i]);
@@ -611,10 +618,10 @@ static void draw_screen()
                     drawrect(0, 40+i*26-slidervalue, gConfig.mToolkitWidth-20, 26, 0xff7f7f7f);
             }
             if (!(gVisibleChiplist == 3 && i == 8))
-            fn14.drawstring(gAvailableChip[gVisibleChiplist][i], 0, 46 + i * 26 - slidervalue); 
-        }    
+            fn14.drawstring(gAvailableChip[gVisibleChiplist][i], 0, 46 + i * 26 - slidervalue);
+        }
     }
-    glDisable(GL_SCISSOR_TEST);    
+    glDisable(GL_SCISSOR_TEST);
 
     imgui_slider(GEN_ID,gConfig.mToolkitWidth-20,40,20,gScreenHeight-40,C_WIDGETBG,C_WIDGETTHUMB,C_WIDGETHOT,((signed)gAvailableChip[gVisibleChiplist].size() * 26) - (gScreenHeight - 40),slidervalue, (gScreenHeight - 40), 26);
 
@@ -751,7 +758,7 @@ static void draw_screen()
             exit(0);
 		}
     }
-  
+
     if (gUIState.mousex > gConfig.mToolkitWidth && gUIState.mousey > 40)
     {
         if (gDragMode == DRAGMODE_NONE)
@@ -780,7 +787,7 @@ static void draw_screen()
                         gMultiSelectWire.push_back(gWire[i]);
                         gWire[i]->mMultiSelectState = 1;
                         gMultiselectDirty = 1;
-                    } 
+                    }
 
                     if (gUIState.activeitem == 0 && gUIState.mousedown)
                     {
@@ -793,7 +800,7 @@ static void draw_screen()
                             gMultiSelectWire.clear();
                             gMultiSelectChip.clear();
                         }
-                    }                    
+                    }
                 }
             }
         }
@@ -831,7 +838,7 @@ static void draw_screen()
                             gChip[i]->mMultiSelectState = 1;
                         }
                         gMultiselectDirty = 1;
-                    }                    
+                    }
 
                     if (gUIState.activeitem == 0 && gUIState.mousedown)
                     {
@@ -847,7 +854,7 @@ static void draw_screen()
                             gMultiSelectChip.clear();
                         }
                     }
-                    
+
                 }
             }
         }
@@ -928,7 +935,7 @@ static void draw_screen()
                     gUIState.mousedowny += movey * gZoomFactor;
                 }
             }
-        }   
+        }
 
         // If nothing is active so far, we're in "move the world" mode
         if (gDragMode == DRAGMODE_NONE && gUIState.activeitem == -1 && gUIState.mousedown)
@@ -946,7 +953,7 @@ static void draw_screen()
                 gWorldOfsY -= dy / gZoomFactor;
                 gUIState.mousedownx -= dx;
                 gUIState.mousedowny -= dy;
-                gUIState.kbditem = 0; 
+                gUIState.kbditem = 0;
                 mousemode = 1;
                 if (!(gUIState.keymod & gSelectKeyMask) && (!gMultiSelectWire.empty() || !gMultiSelectChip.empty()))
                 {
@@ -965,28 +972,28 @@ static void draw_screen()
             {
 				if (gChip[i]->mBox != 0)
 					continue;
-				
-				if (rect_rect_collide(worldmousex, worldmousey, 
+
+				if (rect_rect_collide(worldmousex, worldmousey,
 									  worldmousedownx, worldmousedowny,
-									  gChip[i]->mRotatedX, gChip[i]->mRotatedY, 
+									  gChip[i]->mRotatedX, gChip[i]->mRotatedY,
 									  gChip[i]->mRotatedX + gChip[i]->mRotatedW, gChip[i]->mRotatedY + gChip[i]->mRotatedH))
 				{
 					if (gChip[i]->mMultiSelectState == 0)
 					{
 						gMultiSelectChip.push_back(gChip[i]);
-						gChip[i]->mMultiSelectState = 1;                        
+						gChip[i]->mMultiSelectState = 1;
 					}
 				}
-				
+
             }
-            for (i = 0; i < (signed)gWire.size(); i++)            
+            for (i = 0; i < (signed)gWire.size(); i++)
             {
 				if (gWire[i]->mBox != 0)
 					continue;
                 Pin * a, * b;
                 a = gWire[i]->mFirst;
                 b = gWire[i]->mSecond;
-                if (rect_line_collide(worldmousex, worldmousey, 
+                if (rect_line_collide(worldmousex, worldmousey,
                                       worldmousedownx, worldmousedowny,
                                       a->mHost->mRotatedX + a->mRotatedX + 0.25, a->mHost->mRotatedY + a->mRotatedY + 0.25,
                                       b->mHost->mRotatedX + b->mRotatedX + 0.25, b->mHost->mRotatedY + b->mRotatedY + 0.25))
@@ -1005,13 +1012,13 @@ static void draw_screen()
         {
             float dist = sqrt(((float)gUIState.mousex - (float)gUIState.mousedownx) * ((float)gUIState.mousex - (float)gUIState.mousedownx) +
                               ((float)gUIState.mousey - (float)gUIState.mousedowny) * ((float)gUIState.mousey - (float)gUIState.mousedowny));
-            if (dist > gConfig.mLineSplitDragDistance) 
+            if (dist > gConfig.mLineSplitDragDistance)
             {
                 // clear multiselect if any
                 gMultiSelectChip.clear();
                 gMultiSelectWire.clear();
-                gMultiselectDirty = 1;                    
-                // First check if distance from the dragged position to one of the original pins was 
+                gMultiselectDirty = 1;
+                // First check if distance from the dragged position to one of the original pins was
                 // short enough, and draw a new line from said pin instead of splitting the wire.
                 split_wire(1);
             }
@@ -1022,13 +1029,13 @@ static void draw_screen()
         {
             float dist = sqrt(((float)gUIState.mousex - (float)gUIState.mousedownx) * ((float)gUIState.mousex - (float)gUIState.mousedownx) +
                               ((float)gUIState.mousey - (float)gUIState.mousedowny) * ((float)gUIState.mousey - (float)gUIState.mousedowny));
-            if (dist > gConfig.mChipCloneDragDistance) 
+            if (dist > gConfig.mChipCloneDragDistance)
             {
 				save_undo();
                 // clear multiselect if any
                 gMultiSelectChip.clear();
                 gMultiSelectWire.clear();
-                gMultiselectDirty = 1;                    
+                gMultiselectDirty = 1;
                 int oldchipid = GET_CHIP_ID(gUIState.activeitem);
                 gNewChip = NULL;
                 for (i = 0; gNewChip == NULL && i < (signed)gChipFactory.size(); i++)
@@ -1044,13 +1051,13 @@ static void draw_screen()
                     gChipName.push_back(gNewChipName);
                     gNewChip->mX = worldmousex - gNewChip->mW / 2;
                     gNewChip->mY = worldmousey - gNewChip->mH / 2;
-					
+
                     gNewChip->rotate(gChip[oldchipid]->mAngleIn90DegreeSteps);
                     gUIState.mousedownx = gUIState.mousex;
                     gUIState.mousedowny = gUIState.mousey;
                     gUIState.mousedownkeymod &= ~gCloneKeyMask; // stop cloning
                     gChip[oldchipid]->clone(gNewChip);
-				
+
 					int i;
 					for (i = 0; i < (signed)gChip.size(); i++)
 					{
@@ -1063,18 +1070,18 @@ static void draw_screen()
                     gUIState.kbditem = gUIState.activeitem;
                     gNewChip = NULL;
                     gNewChipName = NULL;
-				}               
+				}
             }
         }
 
-        if ((gUIState.activeitem == 0 && gUIState.scroll) || 
-			gUIState.keyentered == SDLK_KP_PLUS || 
+        if ((gUIState.activeitem == 0 && gUIState.scroll) ||
+			gUIState.keyentered == SDLK_KP_PLUS ||
 			gUIState.keyentered == SDLK_KP_MINUS ||
 			gUIState.keyentered == SDLK_PAGEUP ||
 			gUIState.keyentered == SDLK_PAGEDOWN)
         {
             float oldfactor = gZoomFactor;
-            if (gUIState.scroll > 0 || 
+            if (gUIState.scroll > 0 ||
 				gUIState.keyentered == SDLK_KP_PLUS ||
 				gUIState.keyentered == SDLK_PAGEUP)
             {
@@ -1094,7 +1101,7 @@ static void draw_screen()
 
     // Handle keyboard events for selected objects
     if ((!gMultiSelectChip.empty()) || (!gMultiSelectWire.empty()))
-    {    
+    {
         // multiselect mode
         if (gUIState.keyentered == SDLK_LEFT ||
             gUIState.keyentered == SDLK_RIGHT ||
@@ -1127,8 +1134,8 @@ static void draw_screen()
                     delete_chip(gChip[i]);
                 }
             }
-            
-            // Deletion of wires is easier (although it's unlikely that any remain 
+
+            // Deletion of wires is easier (although it's unlikely that any remain
             // at this point due to wirefry..)
 
             // This operation would be more efficient if done from end to the beginning.
@@ -1223,7 +1230,7 @@ static void draw_screen()
 		glColor4f(0.15,0.2,0.15,1);
 	else
 		glColor4f(0.75,0.75,0.75,1);
-    glBegin(GL_LINES);    
+    glBegin(GL_LINES);
     for (i = 0; i < 20; i++)
     {
             glVertex2f(i * 10, 0);
@@ -1248,15 +1255,15 @@ static void draw_screen()
             }
         }
     }
-    
+
 
     if (gDragMode == DRAGMODE_SELECT)
     {
         drawrect(
             worldmousedownx,
-            worldmousedowny, 
-            worldmousex - worldmousedownx, 
-            worldmousey - worldmousedowny, 
+            worldmousedowny,
+            worldmousex - worldmousedownx,
+            worldmousey - worldmousedowny,
             0x3fffff00);
     }
 
@@ -1301,7 +1308,7 @@ static void draw_screen()
         else
         if (gChip[i]->mMultiSelectState)
             drawrect(gChip[i]->mX-0.5,gChip[i]->mY-0.5,gChip[i]->mW+1,gChip[i]->mH+1,color_multiselect);
-            
+
         gChip[i]->render(CHIP_ID(0, i));
 
 
@@ -1311,29 +1318,29 @@ static void draw_screen()
         {
             if (gUIState.hotitem == CHIP_ID(j+1,i))
             {
-                drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX, 
+                drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX,
                          gChip[i]->mY + gChip[i]->mPin[j]->mY, 0.5, 0.5, color_hotitem1);
-                drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX + 0.1, 
+                drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX + 0.1,
                          gChip[i]->mY + gChip[i]->mPin[j]->mY + 0.1, 0.3, 0.3, color_hotitem2);
             }
             else
             if (IS_CHIP_ID(gUIState.hotitem) && GET_CHIP_ID(gUIState.hotitem) == i)
             {
-                drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX, 
+                drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX,
                          gChip[i]->mY + gChip[i]->mPin[j]->mY, 0.5, 0.5, color_hotpin1);
-                drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX + 0.1, 
+                drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX + 0.1,
                          gChip[i]->mY + gChip[i]->mPin[j]->mY + 0.1, 0.3, 0.3, color_hotpin2);
             }
             else
             {
                 if (gUIState.keymod & KMOD_ALT && gChip[i]->mPin[j]->getState() == PINSTATE_READ && gChip[i]->mPin[j]->mNet == NULL)
                 {
-                    drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX + 0.1, 
+                    drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX + 0.1,
                             gChip[i]->mY + gChip[i]->mPin[j]->mY + 0.1, 0.3, 0.3, color_pinhilight);
                 }
                 else
                 {
-                    drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX + 0.1, 
+                    drawrect(gChip[i]->mX + gChip[i]->mPin[j]->mX + 0.1,
                             gChip[i]->mY + gChip[i]->mPin[j]->mY + 0.1, 0.3, 0.3, color_normalpin);
                 }
             }
@@ -1371,14 +1378,14 @@ static void draw_screen()
             rc = 0.75; gc = 0; bc = 0;
             break;
         }
-      
+
         if (gUIState.kbditem == WIRE_ID(i))
         {
             rc = (rc + 1) / 2;
             gc = (gc + 1) / 2;
             bc = (bc + 0.5) / 2;
         }
-        else        
+        else
         if (gWire[i]->mMultiSelectState)
         {
             rc = (rc + 0.75) / 2;
@@ -1412,7 +1419,7 @@ static void draw_screen()
         if (IS_WIRE_ID(gUIState.hotitem) &&
             gWire[GET_WIRE_ID(gUIState.hotitem)]->mFirst->mNet ==
             gWire[i]->mFirst->mNet)
-        {           
+        {
             glColor4f(1,1,0,0.5);
         }
 
@@ -1423,7 +1430,7 @@ static void draw_screen()
             {
                 float xv = (a->mHost->mRotatedX + a->mRotatedX + 0.25) - (b->mHost->mRotatedX + b->mRotatedX + 0.25);
                 float yv = (a->mHost->mRotatedY + a->mRotatedY + 0.25) - (b->mHost->mRotatedY + b->mRotatedY + 0.25);
-                
+
                 float l = sqrt(xv*xv+yv*yv);
                 if (l!=0)
                 {
@@ -1515,7 +1522,7 @@ static void draw_screen()
                 else
                 {
                     tooltip = NULL;
-                }                
+                }
             }
             else
             {
@@ -1621,32 +1628,21 @@ static void draw_screen()
 
     SDL_Delay(10);
     glFinish();
-    SDL_GL_SwapBuffers();
+    SDL_GL_SwapWindow(gWindow);
 }
 
 void initvideo()
 {
-    const SDL_VideoInfo *info = NULL;
-    int bpp = 0;
-    int flags = 0;
-    info = SDL_GetVideoInfo();
+    int flags = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
 
-    if (!info) 
-    {
-        fprintf(stderr, "Video query failed: %s\n", SDL_GetError());
-        SDL_Quit();
-        exit(0);
-    }
-
-    bpp = info->vfmt->BitsPerPixel;
-    flags = SDL_OPENGL | SDL_RESIZABLE;
-
-    if (SDL_SetVideoMode(gScreenWidth, gScreenHeight, bpp, flags) == 0) 
+    gWindow = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gScreenWidth, gScreenHeight, flags);
+    if (gWindow == 0)
     {
         fprintf( stderr, "Video mode set failed: %s\n", SDL_GetError());
         SDL_Quit();
         exit(0);
     }
+    gContext = SDL_GL_CreateContext(gWindow);
 
     glViewport( 0, 0, gScreenWidth, gScreenHeight );
 
@@ -1659,7 +1655,7 @@ void initvideo()
         glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-    reload_textures();    
+    reload_textures();
 }
 
 void audiomixer(void *userdata, Uint8 *stream, int len)
@@ -1703,16 +1699,16 @@ int main(int argc, char** args)
     }
 
 
-    memset(gKeyState,0,sizeof(int) * 256);
+    //memset(gKeyState,0,sizeof(int) * 256);
 
     gVisualRand.init_genrand(0xc0cac01a);
 
     int sdlflags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
-    
+
     if (gConfig.mAudioEnable)
         sdlflags |= SDL_INIT_AUDIO;
 
-    if (SDL_Init(sdlflags) < 0) 
+    if (SDL_Init(sdlflags) < 0)
     {
         fprintf(stderr, "Video initialization failed: %s\n", SDL_GetError());
         SDL_Quit();
@@ -1752,13 +1748,13 @@ int main(int argc, char** args)
     {
         char temp[256];
         sprintf(temp, "%s - %s", TITLE, gConfig.mUserInfo);
-        SDL_WM_SetCaption(temp, NULL);  
+        SDL_SetWindowTitle(gWindow, temp);
     }
 
     // For imgui - Enable keyboard repeat to make sliders more tolerable
-    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+    //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     // For imgui - Enable keyboard UNICODE processing for the text field.
-    SDL_EnableUNICODE(1);
+    //SDL_EnableUNICODE(1);
 
     fn.load("data/vera31.fnt");
     fn14.load("data/vera14.fnt");
@@ -1767,9 +1763,9 @@ int main(int argc, char** args)
 	int x, y, n;
 	unsigned char *data = stbi_load("data/icon.png", &x, &y, &n, 4);
     if (data)
-	{	
+	{
 		SDL_Surface *icon = SDL_CreateRGBSurfaceFrom(data,x,y,32,x*4,0x000000ff,0x0000ff00, 0x00ff0000, 0xff000000);
-		SDL_WM_SetIcon(icon, NULL);
+		SDL_SetWindowIcon(gWindow, icon);
 		SDL_FreeSurface(icon);
 		stbi_image_free(data);
 	}
@@ -1796,7 +1792,7 @@ int main(int argc, char** args)
     if (argc > 1)
         do_loaddialog(0, args[1]);
 
-    while (1) 
+    while (1)
     {
         process_events();
         draw_screen();

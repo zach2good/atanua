@@ -21,6 +21,7 @@ misrepresented as being the original software.
 distribution.
 */
 #include <vector>
+#include <map>
 #include "toolkit.h"
 
 using namespace std;
@@ -68,7 +69,7 @@ public:
 
 class Pin
 {
-public:	
+public:
 	// Current pin state
     int mState;
 	// The net the pin is connected to
@@ -82,7 +83,7 @@ public:
 	// Rotated coordinates
     float mRotatedX, mRotatedY;
 	// Pointer to the owner chip
-    Chip *mHost;    
+    Chip *mHost;
 	// Read-only flag. Pin will never write to the net. Optimization, 0 is safe value.
 	int mReadOnly;
 	// Ctor
@@ -118,7 +119,7 @@ public:
     const char *mTooltip;
     // Rotation angle, in 90 degree steps.
     int mAngleIn90DegreeSteps;
-    // Vector of pin pointers - the simulation uses these to access 
+    // Vector of pin pointers - the simulation uses these to access
     // the chip's pins
     vector<Pin*> mPin;
     // Ctor
@@ -209,9 +210,11 @@ public:
 
 extern AtanuaConfig gConfig;
 extern ACFont fn, fn14;
-extern int gKeyState[SDLK_LAST];
+extern std::map<int,int> gKeyState;
 extern int gSelectKeyMask;
 extern int gCloneKeyMask;
 extern int gBlackBackground;
+extern SDL_Window *gWindow;
+extern SDL_GLContext gContext;
 
 char *mystrdup(const char *data);

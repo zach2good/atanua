@@ -116,8 +116,8 @@ atanua-obj = $(atanua-cpp-src:.cpp=.o) $(atanua-c-src:.c=.o)
 CXX = clang
 CC = clang
 
-PKG_CFLAGS = `pkg-config --cflags gl glu gtk+-3.0 sdl glib-2.0`
-PKG_LIBS = `pkg-config --libs gl glu gtk+-3.0 sdl glib-2.0` -lstdc++
+PKG_CFLAGS = `pkg-config --cflags gl glu gtk+-3.0 sdl2 glib-2.0`
+PKG_LIBS = `pkg-config --libs gl glu gtk+-3.0 sdl2 glib-2.0` -lstdc++
 
 #DEBUG = -O3
 DEBUG = -O0 -ggdb3 -fno-inline -Wall 

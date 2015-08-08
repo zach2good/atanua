@@ -47,7 +47,7 @@ FILE * openfileinsamedir(const char * aFname)
 		temp[i+1] = 0;
 	}
 	strcat(temp,aFname);
-	
+
 	return fopen(temp, "rb");
 }
 
@@ -57,11 +57,11 @@ void resetfilename()
 	gFilename = NULL;
     char temp[256];
     sprintf(temp, "%s - %s", TITLE, gConfig.mUserInfo);
-    SDL_WM_SetCaption(temp, NULL);  
+    SDL_SetWindowTitle(gWindow, temp);
 }
 
 void storefilename(const char *fn)
-{	
+{
 	if (!fn)
 	{
 		resetfilename();
@@ -71,24 +71,24 @@ void storefilename(const char *fn)
     if (gFilename)
     {
         delete[] gFilename;
-    }    
+    }
 
 	if (gAltFilename)
     {
         delete[] gAltFilename;
-    }    
-    
+    }
+
     gFilename = mystrdup(fn);
     gAltFilename = mystrdup(fn);
 
 	const char * pt = strrchr(fn,'\\');
-    
-    if (pt == NULL) 
+
+    if (pt == NULL)
         pt = strrchr(fn,'/');
 
-    if (pt == NULL) 
+    if (pt == NULL)
     {
-        pt = fn; 
+        pt = fn;
     }
     else
 	{
@@ -97,8 +97,8 @@ void storefilename(const char *fn)
 
     char temp[1024];
     sprintf(temp, "%s - " TITLE " - %s", pt, gConfig.mUserInfo);
-    SDL_WM_SetCaption(temp, NULL);  
-	
+    SDL_SetWindowTitle(gWindow, temp);
+
 }
 
 #ifdef WINDOWS_VERSION
@@ -149,7 +149,7 @@ FILE * openfiledialog(const char *title)
 				i++;
 			}
 		}
-        
+
         ofn.lpstrTitle = "Open Atanua design file";
     }
     else
@@ -319,7 +319,7 @@ int okcancel(const char *prompt)
 #include <SDL/SDL_syswm.h>
 #include <Carbon/Carbon.h>
 
-static void 
+static void
 FSMakeFSRef(
   FSVolumeRefNum volRefNum,
   SInt32 dirID,
@@ -327,7 +327,7 @@ FSMakeFSRef(
   FSRef *ref)
 {
   FSRefParam  pb;
-  
+
   pb.ioVRefNum = volRefNum;
   pb.ioDirID = dirID;
   pb.ioNamePtr = (const StringPtr)name;
@@ -344,10 +344,10 @@ FSMakePath(
   UInt32 maxPathSize)
 {
   FSRef    ref;
-    
+
   /* convert the inputs to an FSRef */
   FSMakeFSRef(volRefNum, dirID, name, &ref);
-  
+
   /* and then convert the FSRef to a path */
   FSRefMakePath(&ref, path, maxPathSize);
 }
@@ -361,9 +361,9 @@ FILE * openfiledialog(const char *title)
     FSSpec filespec;
     DescType actualtype;
     Size actualsize;
-    
+
     NavGetDefaultDialogCreationOptions(&opts);
-    
+
     NavCreateGetFileDialog (
      &opts, //const NavDialogCreationOptions *inOptions,
      NULL, //NavTypeListHandle inTypeList,
@@ -373,9 +373,9 @@ FILE * openfiledialog(const char *title)
      NULL, //void *inClientData,
      &fod //NavDialogRef *outDialog
     );
-    
+
     FILE * f = NULL;
-    
+
     NavDialogRun(fod);
     NavDialogGetReply(fod, &reply);
     // check
@@ -385,15 +385,15 @@ FILE * openfiledialog(const char *title)
                                    typeFSS, &keyword,
                                    &actualtype, &filespec,
                                    sizeof(FSSpec),
-                                   &actualsize);  
+                                   &actualsize);
         char temp[256];
         FSMakePath(filespec.vRefNum, filespec.parID, filespec.name, (UInt8*)temp, 256);
         f = fopen(temp, "rb");
         if (title == NULL)
-            storefilename(temp);        
+            storefilename(temp);
     }
-    NavDisposeReply(&reply);  
-    NavDialogDispose(fod);  
+    NavDisposeReply(&reply);
+    NavDialogDispose(fod);
     return f;
 }
 
@@ -406,9 +406,9 @@ FILE * savefiledialog(const char* title)
     FSSpec filespec;
     DescType actualtype;
     Size actualsize;
-    
+
     NavGetDefaultDialogCreationOptions(&opts);
-    
+
     NavCreatePutFileDialog (
     &opts, //const NavDialogCreationOptions *inOptions,
     'Atea', //OSType inFileType,
@@ -417,13 +417,13 @@ FILE * savefiledialog(const char* title)
     NULL, //void *inClientData,
     &fod //NavDialogRef *outDialog
     );
-    
-    
+
+
     FILE * f = NULL;
-    
+
     NavDialogRun(fod);
     NavDialogGetReply(fod, &reply);
-    
+
     // check
     if (reply.validRecord)
     {
@@ -431,7 +431,7 @@ FILE * savefiledialog(const char* title)
                                    typeFSS, &keyword,
                                    &actualtype, &filespec,
                                    sizeof(FSSpec),
-                                   &actualsize);  
+                                   &actualsize);
         char temp[256];
         char fn[256];
         FSMakePath(filespec.vRefNum, filespec.parID, filespec.name, (UInt8*)temp, 256);
@@ -444,8 +444,8 @@ FILE * savefiledialog(const char* title)
         if (title == NULL)
             storefilename(temp);
     }
-    NavDisposeReply(&reply);  
-    NavDialogDispose(fod);  
+    NavDisposeReply(&reply);
+    NavDialogDispose(fod);
     return f;
 }
 
@@ -458,8 +458,8 @@ int okcancel(const char *prompt)
     temp[temp[0]+1] = (unsigned char)prompt[temp[0]];
     temp[0]++;
     if (temp[0] == 0xff) break;
-  } 
-  
+  }
+
   // By default, the StandardAlert only shows the 'OK' button. In order to get the
   // 'Cancel' to show as well, we need to fill out this structure. Fun.
   SInt16 result;
@@ -473,14 +473,14 @@ int okcancel(const char *prompt)
   alertparams.defaultButton = kAlertStdAlertCancelButton;
   alertparams.cancelButton = kAlertStdAlertOKButton;
   alertparams.position = kWindowDefaultPosition;
-  
+
   StandardAlert (
      kAlertCautionAlert, //AlertType inAlertType,
      (ConstStr255Param)temp, //ConstStr255Param inError,
      NULL, //ConstStr255Param inExplanation,
      &alertparams, //const AlertStdAlertParamRec *inAlertParam,
      &result//SInt16 *outItemHit
-  );  
+  );
   if (result == kAlertStdAlertOKButton)
     return 1;
   return 0;
@@ -526,7 +526,7 @@ selected_file(GtkWidget * widget, gint arg1, gpointer data)
 {
   if(arg1==GTK_RESPONSE_ACCEPT)
   {
-  	const gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(data));  	
+  	const gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(data));
   	if (!g_file_test(filename, G_FILE_TEST_IS_DIR))
   	{
   		strncpy(gtkfilename, filename, 255);
@@ -559,7 +559,7 @@ static bool select_file (char *buf, int mode, const char*title)
 	if (mode == 0)
     {
         dialog = gtk_file_chooser_dialog_new (title,
-    				      NULL, 
+    				      NULL,
     				      GTK_FILE_CHOOSER_ACTION_OPEN,
     				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
     				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
@@ -568,7 +568,7 @@ static bool select_file (char *buf, int mode, const char*title)
     else
     {
         dialog = gtk_file_chooser_dialog_new (title,
-    				      NULL, 
+    				      NULL,
     				      GTK_FILE_CHOOSER_ACTION_SAVE,
     				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
     				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
@@ -576,7 +576,7 @@ static bool select_file (char *buf, int mode, const char*title)
     if (gFilename)
         gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), gFilename);
     }
-	
+
 	g_signal_connect(G_OBJECT(dialog), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 	g_signal_connect(G_OBJECT(GTK_FILE_CHOOSER_DIALOG(dialog)), "response", G_CALLBACK(selected_file), G_OBJECT(dialog));
 	gtk_widget_show(GTK_WIDGET(dialog));
@@ -586,7 +586,7 @@ static bool select_file (char *buf, int mode, const char*title)
 
 
 FILE * openfiledialog(const char *title)
-{ 
+{
   char temp[256];
 
   select_file(temp, 0, (title == NULL)?"Open Atanua design file":title);
@@ -595,7 +595,7 @@ FILE * openfiledialog(const char *title)
   {
     f = fopen(temp, "rb");
     if (title == NULL)
-        storefilename(temp);    
+        storefilename(temp);
   }
   return f;
 }
@@ -612,7 +612,7 @@ FILE * savefiledialog(const char *title)
         strcat(temp, ".atanua");
     f = fopen(temp, "wb");
     if (title == NULL)
-        storefilename(temp);    
+        storefilename(temp);
   }
   return f;
 }
@@ -637,14 +637,14 @@ void gotoappdirectory(int parc, char ** pars)
 {
     // as good place as any..
     gtk_init(&parc, &pars);
-    
-    // only works if pars[0] points to application and not to a link. 
+
+    // only works if pars[0] points to application and not to a link.
     char *rch = strrchr(pars[0], '/');
-    if (rch != NULL) 
+    if (rch != NULL)
     {
       *rch = 0;
       chdir(pars[0]);
-    }  
+    }
 }
 
 void* opendll(const char *dllfilename)

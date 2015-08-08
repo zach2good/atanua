@@ -1,3 +1,6 @@
 [submodule "src/tinyxml2"]
 	path = src/tinyxml2
 	url = git@github.com:leethomason/tinyxml2.git
+[submodule "src/gl3w"]
+	path = src/gl3w
+	url = git@github.com:skaslev/gl3w.git

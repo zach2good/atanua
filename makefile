@@ -108,7 +108,8 @@ atanua-c-src = \
 	src/8051/opcodes.c \
 	src/stb/stb_image.c \
 	src/stb/stb_image_write.c \
-	src/glee/GLee.c
+	src/glee/GLee.c \
+	src/gl3w/src/gl3w.c
 
 atanua-obj = $(atanua-cpp-src:.cpp=.o) $(atanua-c-src:.c=.o)
 
@@ -121,18 +122,24 @@ PKG_LIBS = `pkg-config --libs gl glu gtk+-3.0 sdl glib-2.0` -lstdc++
 #DEBUG = -O3
 DEBUG = -O0 -ggdb3 -fno-inline -Wall 
 
-CXXFLAGS = $(DEBUG) \
-		   -stdlib=libstdc++ \
+CFLAGS = $(DEBUG) \
 		   -Isrc \
 		   -Isrc/include \
-		   -Isrc/tinyxml2 $(PKG_CFLAGS)
+		   -Isrc/tinyxml2 \
+		   -Isrc/gl3w/include $(PKG_CFLAGS)
+
+CXXFLAGS = $(CFLAGS) \
+		   -stdlib=libstdc++
 
 ifeq ($(shell uname), Linux)
 	PKG_LIBS += -lm -ldl
 endif
 
+src/gl3w/src/gl3w.c:
+	cd src/gl3w && python ./gl3w_gen.py
+
 atanua: $(atanua-obj)
-	$(CXX) $(PKG_CFLAGS) -o $@ $(atanua-obj) -L. $(PKG_LIBS) $(CXXFLAGS)
+	$(CXX) -o $@ $(atanua-obj) -L. $(PKG_LIBS)
 
 data:
 	wget -qc http://sol.gfxile.net/zip/atanua141220.zip

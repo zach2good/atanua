@@ -86,7 +86,7 @@ int gSavePNG = 0;
 char * gSidebarTooltip = NULL;
 int gSidebarTooltipId = -1;
 
-SDL_Window *gWindow;
+SDL_Window *gWindow = NULL;
 SDL_GLContext gContext;
 
 SDL_AudioSpec *gAudioSpec = NULL;
@@ -1635,14 +1635,16 @@ void initvideo()
 {
     int flags = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
 
-    gWindow = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gScreenWidth, gScreenHeight, flags);
-    if (gWindow == 0)
-    {
-        fprintf( stderr, "Video mode set failed: %s\n", SDL_GetError());
-        SDL_Quit();
-        exit(0);
+    if (NULL == gWindow) {
+        gWindow = SDL_CreateWindow(TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, gScreenWidth, gScreenHeight, flags);
+        if (gWindow == 0)
+        {
+            fprintf( stderr, "Video mode set failed: %s\n", SDL_GetError());
+            SDL_Quit();
+            exit(0);
+        }
+        gContext = SDL_GL_CreateContext(gWindow);
     }
-    gContext = SDL_GL_CreateContext(gWindow);
 
     glViewport( 0, 0, gScreenWidth, gScreenHeight );
 
@@ -1651,8 +1653,8 @@ void initvideo()
 
     gluOrtho2D(0,gScreenWidth,gScreenHeight,0);
 
-    if (gConfig.mUseBlending)
-        glEnable(GL_BLEND);
+    //if (gConfig.mUseBlending)
+    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
     reload_textures();

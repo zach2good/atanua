@@ -1653,9 +1653,10 @@ void initvideo()
 
     gluOrtho2D(0,gScreenWidth,gScreenHeight,0);
 
-    //if (gConfig.mUseBlending)
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    if (gConfig.mUseBlending) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    }
 
     reload_textures();
 }

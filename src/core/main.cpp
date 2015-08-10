@@ -1691,8 +1691,6 @@ int main(int argc, char** args)
 {
     memset(gAudioBuffer,0,AUDIOBUF_SIZE);
 
-    gotoappdirectory(argc, args);
-
     gConfig.load();
 
     if (gConfig.mSwapShiftAndCtrl)
@@ -1723,6 +1721,8 @@ int main(int argc, char** args)
         exit(0);
     }
 
+    gotoappdirectory(argc, args);
+    
     if (gConfig.mAudioEnable)
     {
         SDL_AudioSpec *as = new SDL_AudioSpec;

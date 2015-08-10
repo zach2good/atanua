@@ -1658,10 +1658,9 @@ void initvideo()
 
     gluOrtho2D(0,gScreenWidth,gScreenHeight,0);
 
-    if (gConfig.mUseBlending) {
+    if (gConfig.mUseBlending)
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    }
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
     reload_textures();
 }
@@ -1704,9 +1703,6 @@ int main(int argc, char** args)
         gCloneKeyMask = KMOD_CTRL;
     }
 
-
-    //memset(gKeyState,0,sizeof(int) * 256);
-
     gVisualRand.init_genrand(0xc0cac01a);
 
     int sdlflags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
@@ -1722,7 +1718,7 @@ int main(int argc, char** args)
     }
 
     gotoappdirectory(argc, args);
-    
+
     if (gConfig.mAudioEnable)
     {
         SDL_AudioSpec *as = new SDL_AudioSpec;

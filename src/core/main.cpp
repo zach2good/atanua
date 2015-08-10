@@ -305,10 +305,15 @@ void process_events()
             SDL_Quit();
             exit(0);
             break;
-        case SDL_WINDOWEVENT_RESIZED:
-            gScreenWidth = event.window.data1;
-            gScreenHeight = event.window.data2;
-            initvideo();
+        case SDL_WINDOWEVENT:
+            switch (event.window.event)
+            {
+            case SDL_WINDOWEVENT_RESIZED:
+                gScreenWidth = event.window.data1;
+                gScreenHeight = event.window.data2;
+                initvideo();
+                break;
+            }
             break;
         }
     }

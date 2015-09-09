@@ -315,6 +315,8 @@ void process_events()
                 break;
             }
             break;
+        case SDL_MOUSEWHEEL:
+	    gUIState.scroll += event.wheel.y;
         }
     }
 }

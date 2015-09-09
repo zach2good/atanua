@@ -512,7 +512,7 @@ void *getdllproc(int dllhandle, const char *procname)
 
 #ifdef LINUX_VERSION
 
-#include "SDL/SDL_syswm.h" // to get current window handle
+#include "SDL2/SDL_syswm.h" // to get current window handle
 #include <gtk/gtk.h>
 #include <dlfcn.h> // dll functions
 #include <unistd.h>

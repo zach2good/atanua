@@ -3,7 +3,6 @@ set(SOURCES
         basechipfactory.cpp
         BoxStitchingInformation.cpp
         chip.cpp
-        cocoadialogs.m
         fileio.cpp
         fileutils.cpp
         main.cpp
@@ -16,6 +15,10 @@ set(SOURCES
         slidingaverage.cpp
         wire.cpp)
 
+if(APPLE)
+    list(APPEND SOURCES
+            cocoadialogs.m)
+endif(APPLE)
 add_executable(atanua ${SOURCES})
 
 target_link_libraries(atanua PUBLIC 8051 basecode chip stb tinyxml2)

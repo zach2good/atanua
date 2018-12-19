@@ -1,3 +1,7 @@
+Based off of [jarikomppa](https://github.com/jarikomppa)'s [atanua](https://github.com/jarikomppa/atanua),
+
+and continuing the excellent work of [yang-le](https://github.com/yang-le)'s fork: [here](https://github.com/yang-le/atanua).
+
 # Atanua Real-Time Logic Simulator
 
 This is a real-time logic simulator designed for educational use. It was originally built as a bachelor of engineering project, and it was commercially available from 2008 to 2014. Since it never really "took off" commercially, I decided to release it as open source.

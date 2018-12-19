@@ -368,7 +368,7 @@ void ACFont::drawstring(const char * string, float x, float y, int color, float 
             delete[] lru->mTexcoords;
             delete[] lru->mString;
 
-            if (gConfig.mUseVBOs && GLEE_ARB_vertex_buffer_object)
+            if (gConfig.mUseVBOs)
             {
                 glDeleteBuffers(1, &lru->mVvbo);
                 glDeleteBuffers(1, &lru->mTvbo);
@@ -464,7 +464,7 @@ void ACFont::drawstring(const char * string, float x, float y, int color, float 
             }
             str = lru;
 
-            if (gConfig.mUseVBOs && GLEE_ARB_vertex_buffer_object)
+            if (gConfig.mUseVBOs)
             {                  
                 glGenBuffers(1, &lru->mVvbo);   
                 glBindBuffer(GL_ARRAY_BUFFER, lru->mVvbo);
@@ -496,7 +496,7 @@ void ACFont::drawstring(const char * string, float x, float y, int color, float 
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-        if (gConfig.mUseVBOs && GLEE_ARB_vertex_buffer_object)
+        if (gConfig.mUseVBOs)
         {
             glBindBuffer(GL_ARRAY_BUFFER, str->mVvbo);
             glVertexPointer(2, GL_FLOAT, 0, 0);

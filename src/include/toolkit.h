@@ -70,7 +70,7 @@ distribution.
 #ifdef OSX_VERSION
 #include <SDL.h>
 #include "stb_image.h"
-#include "GLee.h"
+//#include "GLee.h"
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #define stricmp(a,b) strcasecmp((a),(b))

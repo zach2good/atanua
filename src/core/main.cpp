@@ -27,7 +27,7 @@ distribution.
 #include "basechipfactory.h"
 #include "pluginchipfactory.h"
 
-#include "stb/stb_image_write.h"
+#include "stb_image_write.h"
 
 #define C_MENUBG 0xff3f4f4f
 #define C_WIDGETBG 0xff3f5f6f
@@ -198,7 +198,7 @@ void process_events()
             handle_key(event.key.keysym.sym, 0);
 #ifdef __APPLE__
             if (event.key.keysym.sym == SDLK_z &&
-                event.key.keysym.mod & KMOD_META)
+                event.key.keysym.mod & KMOD_GUI)
                 do_undo();
 #endif
             if (event.key.keysym.sym == SDLK_z &&
@@ -209,7 +209,7 @@ void process_events()
                 do_undo();
 #ifdef __APPLE__
             if (event.key.keysym.sym == SDLK_y &&
-                event.key.keysym.mod & KMOD_META)
+                event.key.keysym.mod & KMOD_GUI)
                 do_redo();
 #endif
             if (event.key.keysym.sym == SDLK_y &&
@@ -315,6 +315,8 @@ void process_events()
                 break;
             }
             break;
+        case SDL_MOUSEWHEEL:
+            gUIState.scroll += event.wheel.y;
         }
     }
 }

@@ -68,9 +68,9 @@ distribution.
 
 
 #ifdef OSX_VERSION
-#include <SDL2/SDL.h>
-#include "stb/stb_image.h"
-#include "glee/GLee.h"
+#include <SDL.h>
+#include "stb_image.h"
+#include "GLee.h"
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #define stricmp(a,b) strcasecmp((a),(b))

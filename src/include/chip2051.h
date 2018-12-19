@@ -25,7 +25,7 @@ distribution.
 
 extern "C"
 {
-#include "8051/emu8051.h"
+#include "emu8051.h"
 }
 
 class Chip2051 : public Chip

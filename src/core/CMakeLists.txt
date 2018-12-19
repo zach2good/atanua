@@ -22,6 +22,10 @@ target_link_libraries(atanua PUBLIC 8051 basecode chip stb tinyxml2)
 
 target_include_directories(atanua PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_custom_command(TARGET atanua PRE_BUILD
+add_custom_command(TARGET atanua POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:atanua> ${CMAKE_BINARY_DIR})
+
+add_custom_command(TARGET atanua POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:atanua>/data)
+        ${CMAKE_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/data)

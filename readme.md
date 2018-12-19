@@ -2,6 +2,33 @@ Based off of [jarikomppa](https://github.com/jarikomppa)'s [atanua](https://gith
 
 and continuing the excellent work of [yang-le](https://github.com/yang-le)'s fork: [here](https://github.com/yang-le/atanua).
 
+**requirements:**
+```
+python (for gl3w)
+cmake
+SDL2
+```
+
+**build:**
+
+```
+git clone https://github.com/zach2good/atanua.git
+cd atanua
+git submodule update --init --recursive
+mkdir build
+cd build
+cmake ..
+make atanua
+```
+
+**run:**
+
+```
+./atanua
+```
+
+
+#### === Original Readme ================================================
 # Atanua Real-Time Logic Simulator
 
 This is a real-time logic simulator designed for educational use. It was originally built as a bachelor of engineering project, and it was commercially available from 2008 to 2014. Since it never really "took off" commercially, I decided to release it as open source.

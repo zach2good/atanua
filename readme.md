@@ -1,6 +1,6 @@
 Based off of [jarikomppa](https://github.com/jarikomppa)'s [atanua](https://github.com/jarikomppa/atanua),
 
-and continuing the excellent work of [yang-le](https://github.com/yang-le)'s fork: [here](https://github.com/yang-le/atanua).
+and continuing the excellent work of [rhaamo](https://github.com/rhaamo) and [yang-le](https://github.com/yang-le)'s forks.
 
 **requirements:**
 ```
